@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"name": "people-cars-app",
+			"path": "../../../../../people-cars-app"
+		}
+	],
+	"settings": {}
+}
