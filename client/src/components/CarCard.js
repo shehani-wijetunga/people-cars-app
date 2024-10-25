@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 // GraphQL mutation to delete a car
 const DELETE_CAR = gql`
@@ -12,17 +12,28 @@ const DELETE_CAR = gql`
 
 // GraphQL mutation to update a car
 const UPDATE_CAR = gql`
-  mutation UpdateCar($id: ID!, $year: Int!, $make: String!, $model: String!, $price: Float!) {
-    updateCar(id: $id, year: $year, make: $make, model: $model, price: $price) {
+  mutation UpdateCar($id: ID!, $year: Int!, $make: String!, $model: String!, $price: Float!, $personId: ID!) {
+    updateCar(id: $id, year: $year, make: $make, model: $model, price: $price, personId: $personId) {
       id
       year
       make
       model
       price
+      personId
     }
   }
 `;
 
+// GraphQL query to get all people for the dropdown
+const GET_PEOPLE = gql`
+  query GetPeople {
+    people {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
 
 function CarCard({ car }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -30,6 +41,8 @@ function CarCard({ car }) {
   const [make, setMake] = useState(car.make);
   const [model, setModel] = useState(car.model);
   const [price, setPrice] = useState(car.price);
+  const [personId, setPersonId] = useState(car.personId);
+  const { data: peopleData } = useQuery(GET_PEOPLE);
   const [deleteCar] = useMutation(DELETE_CAR, {
     refetchQueries: ['GetPeopleAndCars'],
   });
@@ -46,10 +59,11 @@ function CarCard({ car }) {
     updateCar({
       variables: {
         id: car.id,
-        year: parseInt(year),  // Ensure this is an integer
+        year: parseInt(year), 
         make,
         model,
-        price: parseFloat(price),  // Ensure this is a float
+        price: parseFloat(price),  
+        personId,
       },
     });
     setIsEditing(false);
@@ -81,6 +95,14 @@ function CarCard({ car }) {
             type="number"
             placeholder="Price"
           />
+           <select value={personId} onChange={(e) => setPersonId(e.target.value)}>
+            <option value="">Select Person</option>
+            {peopleData?.people.map((person) => (
+              <option key={person.id} value={person.id}>
+                {person.firstName} {person.lastName}
+              </option>
+            ))}
+          </select>
           <button type="submit">Save</button>
         </form>
       ) : (

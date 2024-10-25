@@ -48,12 +48,11 @@ const resolvers = {
       people.push(newPerson);
       return newPerson;
     },
-    updatePerson: (parent, args) => {
-      const personIndex = people.findIndex((p) => p.id === args.id);
-      if (personIndex > -1) {
-        people[personIndex] = { ...people[personIndex], ...args };
-        return people[personIndex];
-      }
+    updatePerson: (_, { id, firstName, lastName }) => {
+      const person = people.find(person => person.id === id);
+      person.firstName = firstName;
+      person.lastName = lastName;
+      return person;
     },
     deletePerson: (parent, args) => {
       const personIndex = people.findIndex((p) => p.id === args.id);
@@ -67,14 +66,14 @@ const resolvers = {
       cars.push(newCar);
       return newCar;
     },
-    updateCar: (parent, args) => {
-      const { id, year, make, model, price } = args;
-      const carIndex = cars.findIndex((car) => car.id === id);
-      if (carIndex !== -1) {
-        cars[carIndex] = { ...cars[carIndex], year, make, model, price };
-        return cars[carIndex];
-      }
-      throw new Error('Car not found');
+    updateCar: (_, { id, year, make, model, price, personId }) => {
+      const car = cars.find(car => car.id === id);
+      car.year = year;
+      car.make = make;
+      car.model = model;
+      car.price = price;
+      car.personId = personId;
+      return car;
     },
     deleteCar: (parent, args) => {
       const carIndex = cars.findIndex((c) => c.id === args.id);
